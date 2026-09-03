@@ -24,9 +24,10 @@ import { createPortal } from "react-dom";
 
 interface TooltipProps {
   children: ReactNode;
-  content?: string;
+  content?: ReactNode;
   position?: "top" | "bottom" | "left" | "right";
   className?: string;
+  tooltipClassName?: string;
   delayMs?: number;
   /**
    * Issue #2352: Render the tooltip in a React portal so it escapes the
@@ -52,6 +53,7 @@ export default function Tooltip({
   content,
   position = "top",
   className = "",
+  tooltipClassName = "",
   delayMs = 200,
   usePortal = true,
   multiline = false,
@@ -60,7 +62,7 @@ export default function Tooltip({
   const tooltipId = useId();
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wrapperRef = useRef<HTMLSpanElement | null>(null);
-  const tooltipRef = useRef<HTMLSpanElement | null>(null);
+  const tooltipRef = useRef<HTMLDivElement | null>(null);
 
   const show = useCallback(() => {
     clearTimeout(timeoutRef.current);
@@ -149,14 +151,13 @@ export default function Tooltip({
   );
 
   const widthClass = multiline ? "max-w-xs whitespace-normal break-words" : "whitespace-nowrap";
-  const baseTooltipClass =
-    "z-50 px-2.5 py-1.5 text-xs font-medium text-white bg-gray-900/95 rounded-md shadow-lg pointer-events-none animate-in fade-in duration-150 motion-reduce:transition-none motion-reduce:animate-none border border-white/10";
+  const baseTooltipClass = `z-50 px-3 py-2 text-xs font-medium text-white bg-[#10141e]/95 rounded-lg shadow-xl pointer-events-none animate-in fade-in duration-150 motion-reduce:transition-none motion-reduce:animate-none border border-white/10 backdrop-blur-sm ${tooltipClassName}`;
 
   const portalEnabled = usePortal && typeof window !== "undefined";
 
   const tooltipEl =
     visible && content ? (
-      <span
+      <div
         ref={tooltipRef}
         id={tooltipId}
         role="tooltip"
@@ -171,7 +172,7 @@ export default function Tooltip({
         style={portalEnabled ? { top: -9999, left: -9999, visibility: "hidden" } : undefined}
       >
         {content}
-      </span>
+      </div>
     ) : null;
 
   return (
