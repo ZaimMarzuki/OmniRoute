@@ -581,8 +581,11 @@ export default function Sidebar({
         )}
       >
         <span
-          className="material-symbols-outlined text-[14px]"
-          style={isItemPinned ? { fontVariationSettings: "'FILL' 1" } : undefined}
+          className="material-symbols-outlined text-[13px]"
+          style={{
+            fontSize: "13px",
+            ...(isItemPinned ? { fontVariationSettings: "'FILL' 1" } : {}),
+          }}
         >
           push_pin
         </span>
@@ -785,8 +788,11 @@ export default function Sidebar({
                 >
                   {sectionId === "pinned" && (
                     <span
-                      className="material-symbols-outlined text-[12px] text-primary shrink-0 mr-1"
-                      style={{ fontVariationSettings: "'FILL' 1" }}
+                      className="material-symbols-outlined text-[10px] text-primary shrink-0 mr-1"
+                      style={{
+                        fontSize: "10px",
+                        fontVariationSettings: "'FILL' 1",
+                      }}
                     >
                       push_pin
                     </span>

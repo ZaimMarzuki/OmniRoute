@@ -201,4 +201,30 @@ describe("Sidebar pinned items shortcut (#pinned-items)", () => {
     const linksExpanded = Array.from(container.querySelectorAll('a[href="/dashboard/analytics"]'));
     expect(linksExpanded.length).toBe(2);
   });
+
+  it("renders proportional pin icon sizing matching text label scale", async () => {
+    localStorage.setItem("sidebar-pinned-items", JSON.stringify(["analytics"]));
+
+    const { default: Sidebar } = await import("@/shared/components/Sidebar");
+    const container = makeContainer();
+    root = createRoot(container);
+    await act(async () => {
+      root!.render(<Sidebar />);
+    });
+
+    // Nav item pin icon should have 13px fontSize (proportional to 14px item label)
+    const navPinBtn = container.querySelector(
+      'button[title*="Unpin item"], button[aria-label*="Unpin item"]'
+    );
+    expect(navPinBtn).toBeDefined();
+    const navPinIcon = navPinBtn?.querySelector(".material-symbols-outlined");
+    expect((navPinIcon as HTMLElement)?.style.fontSize).toBe("13px");
+
+    // Section header pin icon should have 10px fontSize (proportional to 10px category header)
+    const pinnedHeader = Array.from(container.querySelectorAll('div[role="button"]')).find((el) =>
+      el.textContent?.includes("Pinned")
+    );
+    const headerPinIcon = pinnedHeader?.querySelector(".material-symbols-outlined");
+    expect((headerPinIcon as HTMLElement)?.style.fontSize).toBe("10px");
+  });
 });
