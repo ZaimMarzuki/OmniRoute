@@ -202,7 +202,7 @@ describe("Sidebar pinned items shortcut (#pinned-items)", () => {
     expect(linksExpanded.length).toBe(2);
   });
 
-  it("renders proportional pin icon sizing matching text label scale", async () => {
+  it("renders proportional pin icon sizing on nav items and clean text header for PINNED", async () => {
     localStorage.setItem("sidebar-pinned-items", JSON.stringify(["analytics"]));
 
     const { default: Sidebar } = await import("@/shared/components/Sidebar");
@@ -220,11 +220,14 @@ describe("Sidebar pinned items shortcut (#pinned-items)", () => {
     const navPinIcon = navPinBtn?.querySelector(".material-symbols-outlined");
     expect((navPinIcon as HTMLElement)?.style.fontSize).toBe("13px");
 
-    // Section header pin icon should have 10px fontSize (proportional to 10px category header)
+    // Section header PINNED should be clean text without redundant leading icon, consistent with other category headers
     const pinnedHeader = Array.from(container.querySelectorAll('div[role="button"]')).find((el) =>
       el.textContent?.includes("Pinned")
     );
-    const headerPinIcon = pinnedHeader?.querySelector(".material-symbols-outlined");
-    expect((headerPinIcon as HTMLElement)?.style.fontSize).toBe("10px");
+    expect(pinnedHeader).toBeDefined();
+    const headerPinIcon = pinnedHeader?.querySelector(
+      ".material-symbols-outlined:not(:last-child)"
+    );
+    expect(headerPinIcon).toBeNull();
   });
 });

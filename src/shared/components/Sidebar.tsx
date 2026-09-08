@@ -786,17 +786,6 @@ export default function Sidebar({
                   role="button"
                   aria-expanded={isExpanded}
                 >
-                  {sectionId === "pinned" && (
-                    <span
-                      className="material-symbols-outlined text-[10px] text-primary shrink-0 mr-1"
-                      style={{
-                        fontSize: "10px",
-                        fontVariationSettings: "'FILL' 1",
-                      }}
-                    >
-                      push_pin
-                    </span>
-                  )}
                   <span className="flex-1 text-[10px] font-semibold text-text-muted/60 uppercase tracking-wider group-hover/header:text-text-muted/90 transition-colors">
                     {section.title}
                   </span>
