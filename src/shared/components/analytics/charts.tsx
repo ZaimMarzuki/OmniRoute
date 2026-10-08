@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Card from "../Card";
-import { getModelColor } from "@/shared/constants/colors";
+import Tooltip from "../Tooltip";
 import { PROVIDER_COLORS } from "./chartColors";
 import {
   fmtCompact as fmt,
@@ -59,15 +59,53 @@ export function StatCard({
   tooltip?: string;
   color?: string;
 }) {
+  const isCost = String(label).toLowerCase().includes("cost");
+  const tooltipText = tooltip
+    ? String(tooltip).includes(":")
+      ? tooltip
+      : isCost
+        ? `cost : ${String(tooltip).startsWith("$") ? tooltip : `$${tooltip}`}`
+        : `tokens : ${tooltip} tokens`
+    : null;
+
+  const valueElement = (
+    <span
+      className={`text-2xl font-bold ${color} truncate cursor-default`}
+      data-tooltip={tooltip}
+      title={tooltip ? undefined : String(value)}
+    >
+      {value}
+    </span>
+  );
+
   return (
     <Card className="px-4 py-3 flex flex-col gap-1 min-w-0">
       <div className="flex items-center gap-1.5 text-text-muted text-[11px] uppercase font-semibold tracking-wide min-w-0">
         <span className="material-symbols-outlined text-[14px] shrink-0">{icon}</span>
         <span className="truncate">{label}</span>
       </div>
-      <span className={`text-2xl font-bold ${color} truncate`} title={tooltip ?? String(value)}>
-        {value}
-      </span>
+      {tooltipText ? (
+        <Tooltip
+          content={
+            <div className="flex flex-col gap-0.5 text-left py-0.5 min-w-[140px]">
+              <div className="font-semibold text-white/95 text-xs">{label}</div>
+              <div
+                className={`font-mono text-xs ${
+                  color && color !== "text-text-main" ? color : "text-violet-400"
+                } tracking-wide`}
+              >
+                {tooltipText}
+              </div>
+            </div>
+          }
+          className="w-fit max-w-full"
+          delayMs={150}
+        >
+          {valueElement}
+        </Tooltip>
+      ) : (
+        valueElement
+      )}
       {subValue && <span className="text-xs text-text-muted truncate">{subValue}</span>}
     </Card>
   );
@@ -101,28 +139,56 @@ export function CompactStatGrid({ sections }: { sections: CompactStatSection[] }
                   : "grid grid-cols-2 md:grid-cols-4 gap-x-5 gap-y-2"
               }
             >
-              {section.items.map((stat, i) => (
-                <div key={i} className="flex items-center justify-between gap-2 min-w-0 py-0.5">
-                  <div
-                    className={`flex items-center gap-1.5 ${section.wideValues ? "shrink-0" : "min-w-0"}`}
-                  >
-                    <span className="material-symbols-outlined text-[14px] text-text-muted shrink-0">
-                      {stat.icon}
-                    </span>
-                    <span
-                      className={`text-[11px] uppercase font-semibold tracking-wide text-text-muted ${section.wideValues ? "whitespace-nowrap" : "truncate"}`}
-                    >
-                      {stat.label}
-                    </span>
-                  </div>
+              {section.items.map((stat, i) => {
+                const statValueEl = (
                   <span
-                    className={`text-sm font-bold text-right ${section.wideValues ? "truncate min-w-0" : "shrink-0"} ${stat.color || "text-text-main"}`}
-                    title={stat.tooltip ?? String(stat.value)}
+                    className={`text-sm font-bold text-right cursor-default ${section.wideValues ? "truncate min-w-0" : "shrink-0"} ${stat.color || "text-text-main"}`}
+                    data-tooltip={stat.tooltip}
+                    title={stat.tooltip ? undefined : String(stat.value)}
                   >
                     {stat.value}
                   </span>
-                </div>
-              ))}
+                );
+
+                return (
+                  <div key={i} className="flex items-center justify-between gap-2 min-w-0 py-0.5">
+                    <div
+                      className={`flex items-center gap-1.5 ${section.wideValues ? "shrink-0" : "min-w-0"}`}
+                    >
+                      <span className="material-symbols-outlined text-[14px] text-text-muted shrink-0">
+                        {stat.icon}
+                      </span>
+                      <span
+                        className={`text-[11px] uppercase font-semibold tracking-wide text-text-muted ${section.wideValues ? "whitespace-nowrap" : "truncate"}`}
+                      >
+                        {stat.label}
+                      </span>
+                    </div>
+                    {stat.tooltip ? (
+                      <Tooltip
+                        content={
+                          <div className="flex flex-col gap-0.5 text-left py-0.5 min-w-[120px]">
+                            <div className="font-semibold text-white/95 text-xs">{stat.label}</div>
+                            <div
+                              className={`font-mono text-xs ${stat.color || "text-violet-400"} tracking-wide`}
+                            >
+                              {String(stat.tooltip).includes(":")
+                                ? stat.tooltip
+                                : `${stat.label.toLowerCase().includes("cost") ? "cost" : "tokens"} : ${stat.tooltip}`}
+                            </div>
+                          </div>
+                        }
+                        className={section.wideValues ? "truncate min-w-0" : "shrink-0"}
+                        delayMs={150}
+                      >
+                        {statValueEl}
+                      </Tooltip>
+                    ) : (
+                      statValueEl
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         ))}
@@ -528,9 +594,26 @@ export function MostActiveDay7d({ activityMap }) {
           <span className="text-xl font-bold capitalize" style={{ lineHeight: 1.2 }}>
             {data.weekday}
           </span>
-          <span className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>
-            {t("datedTokenCount", { date: data.label, tokens: fmt(data.tokens) })}
-          </span>
+          <Tooltip
+            content={
+              <div className="flex flex-col gap-0.5 text-left py-0.5 min-w-[140px]">
+                <div className="font-semibold text-white/95 text-xs">{data.weekday}</div>
+                <div className="font-mono text-xs text-violet-400 tracking-wide">
+                  tokens : {fmtFull(data.tokens)} tokens
+                </div>
+              </div>
+            }
+            className="w-fit max-w-full"
+            delayMs={150}
+          >
+            <span
+              className="text-xs mt-1 cursor-default"
+              style={{ color: "var(--color-text-muted)" }}
+              data-tooltip={fmtFull(data.tokens)}
+            >
+              {t("datedTokenCount", { date: data.label, tokens: fmt(data.tokens) })}
+            </span>
+          </Tooltip>
         </>
       ) : (
         <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>
@@ -591,7 +674,7 @@ export function WeeklySquares7d({ activityMap }) {
         {t("chartWeekly")}
       </h3>
       <div style={{ display: "flex", alignItems: "flex-end", gap: 6, justifyContent: "center" }}>
-        {days.map((d, i) => (
+        {days.map((d) => (
           <div
             key={d.key}
             style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}

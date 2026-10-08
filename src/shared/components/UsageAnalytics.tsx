@@ -414,8 +414,8 @@ export default function UsageAnalytics() {
                   tokenDisplayMode === "exact" ? fmtFull(avgTokensPerReq) : fmt(avgTokensPerReq),
                 tooltip:
                   tokenDisplayMode === "exact"
-                    ? `~${fmt(avgTokensPerReq)}`
-                    : fmtFull(avgTokensPerReq),
+                    ? `tokens : ~${fmt(avgTokensPerReq)} tokens`
+                    : `tokens : ${fmtFull(avgTokensPerReq)} tokens`,
                 color: "text-cyan-500",
               },
               {
@@ -423,7 +423,7 @@ export default function UsageAnalytics() {
                 label: t("perfCostReq"),
                 value: fmtCost(costPerReq),
                 tooltip: costPerReq
-                  ? `$${Number(costPerReq).toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 6 })}`
+                  ? `cost : $${Number(costPerReq).toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 6 })}`
                   : undefined,
                 color: "text-orange-500",
               },
@@ -442,8 +442,8 @@ export default function UsageAnalytics() {
                     : fmt(s.fastRequests || 0),
                 tooltip:
                   tokenDisplayMode === "exact"
-                    ? `~${fmt(s.fastRequests || 0)}`
-                    : fmtFull(s.fastRequests || 0),
+                    ? `requests : ~${fmt(s.fastRequests || 0)} requests`
+                    : `requests : ${fmtFull(s.fastRequests || 0)} requests`,
                 color: "text-sky-500",
               },
             ],
